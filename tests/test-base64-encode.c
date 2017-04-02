@@ -3,45 +3,49 @@
 #include "../src/baseencode.h"
 
 
-Test(encode_test, test_20chars) {
-    const char *k1 = "";
-    const char *k1_enc = "";
-    size_t len_k1 = strlen(k1) + 1;
+Test(encode_test, all_chars) {
+    const char *k = "ADFG413!£$%&&((/?^çé*[]#)-.,|<>+";
+    const char *k_enc = "QURGRzQxMyHCoyQlJiYoKC8/XsOnw6kqW10jKS0uLHw8Pis=";
 
-    const char *k2 = "";
-    const char *k2_enc = "";
-    size_t len_k2 = len_k1;
+    char *ek = base64_encode(k, strlen(k)+1);
 
-    char *ek1 = base64_encode(k1, len_k1);
-    char *ek2 = base64_encode(k2, len_k2);
-
-    cr_expect(strcmp(ek1, k1_enc) == 0, "Expected %s to be equal to %s", k1_enc, ek1);
-    cr_expect(strcmp(ek2, k2_enc) == 0, "Expected %s to be equal to %s", k2_enc, ek2);
-
-    free(ek1);
-    free(ek2);
-}
-
-
-Test(encode_test, test_1char) {
-    const char *k = "";
-    const char *k_enc = "";
-    size_t len_k = strlen(k) + 1;
-
-    char *ek = base64_encode(k, len_k);
-    cr_expect(strcmp(ek, k_enc) == 0, "Expected %s to be equal to %s", k_enc, ek);
+    cr_expect(strcmp(ek, k_enc) == 0, "Expected %s to be equal to %s", ek, k_enc);
 
     free(ek);
 }
 
 
-Test(encode_test, test_3chars) {
-    const char *k = "";
-    const char *k_enc = "";
-    size_t len_k = strlen(k) + 1;
+Test(encode_test, all_chars_noplusone) {
+    const char *k = "ADFG413!£$%&&((/?^çé*[]#)-.,|<>+";
+    const char *k_enc = "QURGRzQxMyHCoyQlJiYoKC8/XsOnw6kqW10jKS0uLHw8Pis=";
 
-    char *ek = base64_encode(k, len_k);
-    cr_expect(strcmp(ek, k_enc) == 0, "Expected %s to be equal to %s", k_enc, ek);
+    char *ek = base64_encode(k, strlen(k));
+
+    cr_expect(strcmp(ek, k_enc) == 0, "Expected %s to be equal to %s", ek, k_enc);
 
     free(ek);
+}
+
+
+Test(encode_test, rfc4648) {
+    const char *k[] = {"", "f", "fo", "foo", "foob", "fooba", "foobar"};
+    const char *k_enc[] = {"", "Zg==" ,"Zm8=", "Zm9v", "Zm9vYg==" ,"Zm9vYmE=", "Zm9vYmFy"};
+
+    for (int i = 0; i < 7; i++) {
+        char *ek = base64_encode(k[i], strlen(k[i])+1);
+        cr_expect(strcmp(ek, k_enc[i]) == 0, "Expected %s to be equal to %s", ek, k_enc[i]);
+        free(ek);
+    }
+}
+
+
+Test(encode_test, rfc4648_noplusone) {
+    const char *k[] = {"", "f", "fo", "foo", "foob", "fooba", "foobar"};
+    const char *k_enc[] = {"", "Zg==" ,"Zm8=", "Zm9v", "Zm9vYg==" ,"Zm9vYmE=", "Zm9vYmFy"};
+
+    for (int i = 0; i < 7; i++) {
+        char *ek = base64_encode(k[i], strlen(k[i]));
+        cr_expect(strcmp(ek, k_enc[i]) == 0, "Expected %s to be equal to %s", ek, k_enc[i]);
+        free(ek);
+    }
 }

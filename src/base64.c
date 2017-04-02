@@ -9,21 +9,40 @@ static const unsigned char b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
 
 
 char *
-base64_encode(const unsigned char *input_string, size_t input_length)
+base64_encode(const unsigned char *user_data, size_t data_len)
 {
-    size_t output_length = 4 * ((input_length + 2) / 3);
-    char *encoded_data = malloc(output_length + 1);
+    size_t user_data_chars = 0, total_bits = 0;
+    int num_of_equals = 0;
+    for (int i = 0; i < data_len; i++) {
+        // As it's not known whether data_len is with or without the +1 for the null byte, a manual check is required.
+        if (user_data[i] != '\0') {
+            total_bits += 8;
+            user_data_chars += 1;
+        }
+    }
+    switch (total_bits % 24) {
+        case 8:
+            num_of_equals = 2;
+            break;
+        case 16:
+            num_of_equals = 1;
+            break;
+        default:
+            break;
+    }
 
+    size_t output_length = (user_data_chars * 8 + 4) / 6;
+    char *encoded_data = calloc(output_length + num_of_equals + 1, 1);
     if (encoded_data == NULL) {
         fprintf(stderr, "Error during memory allocation (encoded_data)\n");
         return NULL;
     }
 
     uint8_t first_octet, second_octet, third_octet;
-    for (int i = 0, j = 0, triple = 0; i < input_length;) {
-        first_octet = (uint8_t) (i < input_length ? input_string[i++] : 0);
-        second_octet = (uint8_t) (i < input_length ? input_string[i++] : 0);
-        third_octet = (uint8_t) (i < input_length ? input_string[i++] : 0);
+    for (int i = 0, j = 0, triple = 0; i < user_data_chars+1;) {
+        first_octet = (uint8_t) (i < user_data_chars+1 ? user_data[i++] : 0);
+        second_octet = (uint8_t) (i < user_data_chars+1 ? user_data[i++] : 0);
+        third_octet = (uint8_t) (i < user_data_chars+1 ? user_data[i++] : 0);
         triple = (first_octet << 0x10) + (second_octet << 0x08) + third_octet;
 
         encoded_data[j++] = b64_alphabet[(triple >> 0x12) & 0x3F];
@@ -32,9 +51,10 @@ base64_encode(const unsigned char *input_string, size_t input_length)
         encoded_data[j++] = b64_alphabet[(triple >> 0x00) & 0x3F];
     }
 
-    uint8_t possible_equals[] = {0, 2, 1};
-    for (int i = 0; i < possible_equals[input_length % 3]; i++)
-        encoded_data[output_length - 1 - i] = '=';
+    for (int i = 0; i < num_of_equals; i++) {
+        encoded_data[output_length + i] = '=';
+    }
+    encoded_data[output_length + num_of_equals] = '\0';
 
     return encoded_data;
 }
