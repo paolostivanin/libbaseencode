@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
-
+#include "common.h"
 
 static int is_valid_b64_input(const char *user_data, size_t data_len);
 
@@ -13,6 +13,10 @@ static const unsigned char b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
 char *
 base64_encode(const unsigned char *user_data, size_t data_len)
 {
+    if (data_len > MAX_ENCODE_INPUT_LEN) {
+        fprintf(stderr, "In order to prevent too much memory being allocated on the heap, the maximum input size allowed has been set to 64 MB.\n");
+        return NULL;
+    }
     size_t user_data_chars = 0, total_bits = 0;
     int num_of_equals = 0;
     for (int i = 0; i < data_len; i++) {
@@ -65,13 +69,14 @@ base64_encode(const unsigned char *user_data, size_t data_len)
 unsigned char *
 base64_decode(const char *user_data, size_t data_len)
 {
+    if (data_len > MAX_DECODE_BASE64_INPUT_LEN) {
+        fprintf(stderr, "The encoded data is bigger than allowed (max encoding size is 64 MB).\n");
+        return NULL;
+    }
     if (!is_valid_b64_input(user_data, data_len)) {
         fprintf(stderr, "The input is not valid base64 encoded data\n");
         return NULL;
     }
-    
-    static const int bits_per_block = 6;
-    static const int bits_per_byte = 8;
 
     size_t user_data_chars = 0;
     for (int z = 0; z < data_len; z++) {
@@ -92,16 +97,16 @@ base64_decode(const char *user_data, size_t data_len)
     int bits_left = 8;
     for (int i = 0, j = 0; i < user_data_chars; i++) {
         int char_index = get_char_index((unsigned char)user_data[i]);
-        if (bits_left > bits_per_block) {
-            mask = (uint8_t) char_index << (bits_left - bits_per_block);
+        if (bits_left > BITS_PER_B64_BLOCK) {
+            mask = (uint8_t) char_index << (bits_left - BITS_PER_B64_BLOCK);
             current_byte = (uint8_t) (current_byte | mask);
-            bits_left -= bits_per_block;
+            bits_left -= BITS_PER_B64_BLOCK;
         } else {
-            mask = (uint8_t) char_index >> (bits_per_block - bits_left);
+            mask = (uint8_t) char_index >> (BITS_PER_B64_BLOCK - bits_left);
             current_byte = (uint8_t) (current_byte | mask);
             decoded_data[j++] = current_byte;
-            current_byte = (uint8_t) (char_index << (bits_per_byte - bits_per_block + bits_left));
-            bits_left += bits_per_byte - bits_per_block;
+            current_byte = (uint8_t) (char_index << (BITS_PER_BYTE - BITS_PER_B64_BLOCK + bits_left));
+            bits_left += BITS_PER_BYTE - BITS_PER_B64_BLOCK;
         }
     }
     decoded_data[output_length] = '\0';

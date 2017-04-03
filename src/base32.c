@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "common.h"
 
 
 static int is_valid_b32_input(const char *user_data, size_t data_len);
@@ -14,6 +15,10 @@ static const unsigned char b32_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 char *
 base32_encode(const unsigned char *user_data, size_t data_len)
 {
+    if (data_len > MAX_ENCODE_INPUT_LEN) {
+        fprintf(stderr, "In order to prevent too much memory being allocated on the heap, the maximum input size allowed has been set to 64 MB.\n");
+        return NULL;
+    }
     size_t user_data_chars = 0, total_bits = 0;
     int num_of_equals = 0;
     for (int i = 0; i < data_len; i++) {
@@ -87,15 +92,15 @@ base32_encode(const unsigned char *user_data, size_t data_len)
 unsigned char *
 base32_decode(const char *user_data, size_t data_len)
 {
+    if (data_len > MAX_DECODE_BASE32_INPUT_LEN) {
+        fprintf(stderr, "The encoded data is bigger than allowed (max encoding size is 64 MB).\n");
+        return NULL;
+    }
     if (!is_valid_b32_input(user_data, data_len)) {
         fprintf(stderr, "The input is not valid base32 encoded data\n");
         return NULL;
     }
-    
-    static const int bits_per_block = 5;
-    static const int bits_per_byte = 8;
 
-    //TODO check for valid b32 string
     size_t user_data_chars = 0;
     for (int i = 0; i < data_len; i++) {
         // As it's not known whether data_len is with or without the +1 for the null byte, a manual check is required.
@@ -104,7 +109,7 @@ base32_decode(const char *user_data, size_t data_len)
         }
     }
 
-    size_t output_length = user_data_chars / 1.6;
+    size_t output_length = (size_t) ((user_data_chars + 1.6 - 1) / 1.6);  // round up
     unsigned char *decoded_data = calloc(output_length + 1, 1);
     if (decoded_data == NULL) {
         fprintf(stderr, "Error during memory allocation)\n");
@@ -115,16 +120,16 @@ base32_decode(const char *user_data, size_t data_len)
     int bits_left = 8;
     for (int i = 0, j = 0; i < user_data_chars; i++) {
         int char_index = get_char_index((unsigned char)user_data[i]);
-        if (bits_left > bits_per_block) {
-            mask = (uint8_t) char_index << (bits_left - bits_per_block);
+        if (bits_left > BITS_PER_B32_BLOCK) {
+            mask = (uint8_t) char_index << (bits_left - BITS_PER_B32_BLOCK);
             current_byte = (uint8_t) (current_byte | mask);
-            bits_left -= bits_per_block;
+            bits_left -= BITS_PER_B32_BLOCK;
         } else {
-            mask = (uint8_t) char_index >> (bits_per_block - bits_left);
+            mask = (uint8_t) char_index >> (BITS_PER_B32_BLOCK - bits_left);
             current_byte = (uint8_t) (current_byte | mask);
             decoded_data[j++] = current_byte;
-            current_byte = (uint8_t) (char_index << (bits_per_byte - bits_per_block + bits_left));
-            bits_left += bits_per_byte - bits_per_block;
+            current_byte = (uint8_t) (char_index << (BITS_PER_BYTE - BITS_PER_B32_BLOCK + bits_left));
+            bits_left += BITS_PER_BYTE - BITS_PER_B32_BLOCK;
         }
     }
     decoded_data[output_length] = '\0';
