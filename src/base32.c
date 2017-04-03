@@ -97,7 +97,7 @@ base32_decode(const char *user_data, size_t data_len)
         }
     }
 
-    size_t output_length = (user_data_chars * 8) / 5;
+    size_t output_length = user_data_chars / 1.6;
     unsigned char *decoded_data = calloc(output_length + 1, 1);
     if (decoded_data == NULL) {
         fprintf(stderr, "Error during memory allocation)\n");
