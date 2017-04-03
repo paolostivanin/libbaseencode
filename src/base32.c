@@ -3,6 +3,8 @@
 #include <stdlib.h>
 
 
+static int is_valid_b32_input(const char *user_data, size_t data_len);
+
 static int get_char_index(unsigned char c);
 
 static const unsigned char b32_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -85,6 +87,11 @@ base32_encode(const unsigned char *user_data, size_t data_len)
 unsigned char *
 base32_decode(const char *user_data, size_t data_len)
 {
+    if (!is_valid_b32_input(user_data, data_len)) {
+        fprintf(stderr, "The input is not valid base32 encoded data\n");
+        return NULL;
+    }
+    
     static const int bits_per_block = 5;
     static const int bits_per_byte = 8;
 
@@ -123,6 +130,30 @@ base32_decode(const char *user_data, size_t data_len)
     decoded_data[output_length] = '\0';
 
     return decoded_data;
+}
+
+
+static int
+is_valid_b32_input (const char *data, size_t len)
+{
+    size_t found = 0, b32_alphabet_len = sizeof(b32_alphabet);
+    for (int i = 0; i < data_len; i++) {
+        if (data[i] == '\0') {
+            found++;
+            break;
+        }
+        for(int j = 0; j < b32_alphabet_len; j++) {
+            if(data[i] == b32_alphabet[j]) {
+                found++;
+                break;
+            }
+        }
+    }
+    if (found != data_len) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 
