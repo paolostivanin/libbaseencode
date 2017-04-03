@@ -3,6 +3,8 @@
 #include <inttypes.h>
 
 
+static int is_valid_b64_input(const char *user_data, size_t data_len);
+
 static int get_char_index(unsigned char c);
 
 static const unsigned char b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -63,10 +65,14 @@ base64_encode(const unsigned char *user_data, size_t data_len)
 unsigned char *
 base64_decode(const char *user_data, size_t data_len)
 {
+    if (!is_valid_b64_input(user_data, data_len)) {
+        fprintf(stderr, "The input is not valid base64 encoded data\n");
+        return NULL;
+    }
+    
     static const int bits_per_block = 6;
     static const int bits_per_byte = 8;
 
-    //TODO check for valid b64 string (check alphabet)
     size_t user_data_chars = 0;
     for (int z = 0; z < data_len; z++) {
         // As it's not known whether data_len is with or without the +1 for the null byte, a manual check is required.
@@ -101,6 +107,30 @@ base64_decode(const char *user_data, size_t data_len)
     decoded_data[output_length] = '\0';
 
     return decoded_data;
+}
+
+
+static int
+is_valid_b64_input (const char *data, size_t len)
+{
+    size_t found = 0, b64_alphabet_len = sizeof(b64_alphabet);
+    for (int i = 0; i < data_len; i++) {
+        if (data[i] == '\0') {
+            found++;
+            break;
+        }
+        for(int j = 0; j < b64_alphabet_len; j++) {
+            if(data[i] == b64_alphabet[j]) {
+                found++;
+                break;
+            }
+        }
+    }
+    if (found != data_len) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 
