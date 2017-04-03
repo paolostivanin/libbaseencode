@@ -134,7 +134,7 @@ base32_decode(const char *user_data, size_t data_len)
 
 
 static int
-is_valid_b32_input (const char *data, size_t len)
+is_valid_b32_input (const char *data, size_t data_len)
 {
     size_t found = 0, b32_alphabet_len = sizeof(b32_alphabet);
     for (int i = 0; i < data_len; i++) {
@@ -143,7 +143,7 @@ is_valid_b32_input (const char *data, size_t len)
             break;
         }
         for(int j = 0; j < b32_alphabet_len; j++) {
-            if(data[i] == b32_alphabet[j]) {
+            if(data[i] == b32_alphabet[j] || data[i] == '=') {
                 found++;
                 break;
             }

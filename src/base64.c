@@ -111,21 +111,18 @@ base64_decode(const char *user_data, size_t data_len)
 
 
 static int
-is_valid_b64_input (const char *data, size_t len)
+is_valid_b64_input (const char *data, size_t data_len)
 {
     size_t found = 0, b64_alphabet_len = sizeof(b64_alphabet);
     for (int i = 0; i < data_len; i++) {
-        if (data[i] == '\0') {
-            found++;
-            break;
-        }
         for(int j = 0; j < b64_alphabet_len; j++) {
-            if(data[i] == b64_alphabet[j]) {
+            if(data[i] == b64_alphabet[j] || data[i] == '=') {
                 found++;
                 break;
             }
         }
     }
+
     if (found != data_len) {
         return 0;
     } else {
