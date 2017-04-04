@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <criterion/criterion.h>
 #include "../src/baseencode.h"
+#include "../src/common.h"
 
 
-Test(decode_test, all_chars) {
+Test(b64_decode_test, b64_all_chars) {
     const char *k = "QURGRzQxMyHCoyQlJiYoKC8/XsOnw6kqW10jKS0uLHw8Pis=";
     const char *k_dec = "ADFG413!£$%&&((/?^çé*[]#)-.,|<>+";
 
@@ -15,7 +16,7 @@ Test(decode_test, all_chars) {
 }
 
 
-Test(decode_test, all_chars_noplusone) {
+Test(b64_decode_test, b64_all_chars_noplusone) {
     const char *k = "QURGRzQxMyHCoyQlJiYoKC8/XsOnw6kqW10jKS0uLHw8Pis=";
     const char *k_dec = "ADFG413!£$%&&((/?^çé*[]#)-.,|<>+";
 
@@ -28,7 +29,7 @@ Test(decode_test, all_chars_noplusone) {
 
 
 
-Test(decode_test, rfc4648) {
+Test(b64_decode_test, b64_rfc4648) {
     const char *k[] = {"", "Zg==" ,"Zm8=", "Zm9v", "Zm9vYg==" ,"Zm9vYmE=", "Zm9vYmFy"};
     const char *k_dec[] = {"", "f", "fo", "foo", "foob", "fooba", "foobar"};
 
@@ -40,7 +41,7 @@ Test(decode_test, rfc4648) {
 }
 
 
-Test(decode_test, rfc4648_noplusone) {
+Test(b64_decode_test, b64_rfc4648_noplusone) {
     const char *k[] = {"", "Zg==" ,"Zm8=", "Zm9v", "Zm9vYg==" ,"Zm9vYmE=", "Zm9vYmFy"};
     const char *k_dec[] = {"", "f", "fo", "foo", "foob", "fooba", "foobar"};
 
@@ -49,4 +50,24 @@ Test(decode_test, rfc4648_noplusone) {
         cr_expect(strcmp(dk, k_dec[i]) == 0, "Expected %s to be equal to %s", dk, k_dec[i]);
         free(dk);
     }
+}
+
+
+Test(b64_decode_test, b64_invalid_input) {
+    const char *k = "£&/(&/";
+    size_t len = strlen(k);
+
+    unsigned char *dk = base64_decode(k, len);
+
+    cr_expect_null(dk, "%s");
+}
+
+
+Test(b64_decode_test, b64_decode_input_exceeded) {
+    const char *k = "ASDF";
+    size_t len = MAX_DECODE_BASE64_INPUT_LEN + 1;
+
+    unsigned char *dk = base64_decode(k, len);
+
+    cr_expect_null(dk, "%s");
 }

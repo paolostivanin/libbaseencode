@@ -3,7 +3,7 @@
 #include "../src/baseencode.h"
 
 
-Test(encode_test, all_chars) {
+Test(b64_encode_test, b64_all_chars) {
     const char *k = "ADFG413!£$%&&((/?^çé*[]#)-.,|<>+";
     const char *k_enc = "QURGRzQxMyHCoyQlJiYoKC8/XsOnw6kqW10jKS0uLHw8Pis=";
 
@@ -15,7 +15,7 @@ Test(encode_test, all_chars) {
 }
 
 
-Test(encode_test, all_chars_noplusone) {
+Test(b64_encode_test, b64_all_chars_noplusone) {
     const char *k = "ADFG413!£$%&&((/?^çé*[]#)-.,|<>+";
     const char *k_enc = "QURGRzQxMyHCoyQlJiYoKC8/XsOnw6kqW10jKS0uLHw8Pis=";
 
@@ -27,7 +27,7 @@ Test(encode_test, all_chars_noplusone) {
 }
 
 
-Test(encode_test, rfc4648) {
+Test(b64_encode_test, b64_rfc4648) {
     const char *k[] = {"", "f", "fo", "foo", "foob", "fooba", "foobar"};
     const char *k_enc[] = {"", "Zg==" ,"Zm8=", "Zm9v", "Zm9vYg==" ,"Zm9vYmE=", "Zm9vYmFy"};
 
@@ -39,7 +39,7 @@ Test(encode_test, rfc4648) {
 }
 
 
-Test(encode_test, rfc4648_noplusone) {
+Test(b64_encode_test, b64_rfc4648_noplusone) {
     const char *k[] = {"", "f", "fo", "foo", "foob", "fooba", "foobar"};
     const char *k_enc[] = {"", "Zg==" ,"Zm8=", "Zm9v", "Zm9vYg==" ,"Zm9vYmE=", "Zm9vYmFy"};
 
@@ -48,4 +48,13 @@ Test(encode_test, rfc4648_noplusone) {
         cr_expect(strcmp(ek, k_enc[i]) == 0, "Expected %s to be equal to %s", ek, k_enc[i]);
         free(ek);
     }
+}
+
+
+Test(b64_encode_test, b64_encode_input_exceeded) {
+    const char *k = "test";
+    size_t len = 65*1024*1024;
+
+    char *ek = base64_encode(k, len);
+    cr_expect_null(ek, "%s");
 }
