@@ -9,3 +9,18 @@
 // if 64 MB of data is encoded than it should be also possible to decode it. That's why a bigger input is allowed for decoding
 #define MAX_DECODE_BASE32_INPUT_LEN ((MAX_ENCODE_INPUT_LEN * 8 + 4) / 5)
 #define MAX_DECODE_BASE64_INPUT_LEN ((MAX_ENCODE_INPUT_LEN * 8 + 4) / 6)
+
+static int strip_char(char *str, char strip)
+{
+    int found = 0;
+    char *p, *q;
+    for (q = p = str; *p; p++) {
+        if (*p != strip) {
+            *q++ = *p;
+        } else {
+            found++;
+        }
+    }
+    *q = '\0';
+    return found;
+}
