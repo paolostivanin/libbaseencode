@@ -71,3 +71,13 @@ Test(b64_decode_test, b64_decode_input_exceeded) {
 
     cr_expect_null(dk, "%s");
 }
+
+
+Test(b64_decode_test, b64_decode_input_whitespaces) {
+    const char *k = "Zm 9v Y mFy";
+    const char *expected = "foobar";
+
+    unsigned char *dk = base64_decode(k, strlen(k));
+
+    cr_expect_str_eq(dk, expected, "%s");
+}

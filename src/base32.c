@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include "common.h"
 
 
@@ -90,16 +92,21 @@ base32_encode(const unsigned char *user_data, size_t data_len)
 
 
 unsigned char *
-base32_decode(const char *user_data, size_t data_len)
+base32_decode(const char *user_data_untrimmed, size_t data_len)
 {
     if (data_len > MAX_DECODE_BASE32_INPUT_LEN) {
         fprintf(stderr, "The encoded data is bigger than allowed (max encoding size is 64 MB).\n");
         return NULL;
     }
+
+    char *user_data = strdup(user_data_untrimmed);
+    data_len -= strip_char(user_data, ' ');
+
     if (!is_valid_b32_input(user_data, data_len)) {
         fprintf(stderr, "The input is not valid base32 encoded data\n");
         return NULL;
     }
+
 
     size_t user_data_chars = 0;
     for (int i = 0; i < data_len; i++) {
@@ -133,6 +140,8 @@ base32_decode(const char *user_data, size_t data_len)
         }
     }
     decoded_data[output_length] = '\0';
+
+    free(user_data);
 
     return decoded_data;
 }

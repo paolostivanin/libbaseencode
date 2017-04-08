@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <string.h>
+#include <ctype.h>
 #include "common.h"
 
 static int is_valid_b64_input(const char *user_data, size_t data_len);
@@ -67,12 +69,16 @@ base64_encode(const unsigned char *user_data, size_t data_len)
 
 
 unsigned char *
-base64_decode(const char *user_data, size_t data_len)
+base64_decode(const char *user_data_untrimmed, size_t data_len)
 {
     if (data_len > MAX_DECODE_BASE64_INPUT_LEN) {
         fprintf(stderr, "The encoded data is bigger than allowed (max encoding size is 64 MB).\n");
         return NULL;
     }
+
+    char *user_data = strdup(user_data_untrimmed);
+    data_len -= strip_char(user_data, ' ');
+
     if (!is_valid_b64_input(user_data, data_len)) {
         fprintf(stderr, "The input is not valid base64 encoded data\n");
         return NULL;
@@ -110,6 +116,8 @@ base64_decode(const char *user_data, size_t data_len)
         }
     }
     decoded_data[output_length] = '\0';
+
+    free(user_data);
 
     return decoded_data;
 }

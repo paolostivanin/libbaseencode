@@ -70,3 +70,13 @@ Test(b32_decode_test, b32_decode_input_exceeded) {
 
     cr_expect_null(dk, "%s");
 }
+
+
+Test(b32_decode_test, b32_decode_input_whitespaces) {
+    const char *k = "MZ XW 6Y TB";
+    const char *expected = "fooba";
+
+    unsigned char *dk = base32_decode(k, strlen(k));
+
+    cr_expect_str_eq(dk, expected, "%s");
+}
