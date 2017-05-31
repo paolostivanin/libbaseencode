@@ -81,6 +81,7 @@ base64_decode(const char *user_data_untrimmed, size_t data_len)
 
     if (!is_valid_b64_input(user_data, data_len)) {
         fprintf(stderr, "The input is not valid base64 encoded data\n");
+        free(user_data);
         return NULL;
     }
 
@@ -96,6 +97,7 @@ base64_decode(const char *user_data_untrimmed, size_t data_len)
     unsigned char *decoded_data = calloc(output_length + 1, 1);
     if (decoded_data == NULL) {
         fprintf(stderr, "Error during memory allocation (decoded_data)\n");
+        free(user_data);
         return NULL;
     }
 

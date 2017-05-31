@@ -104,6 +104,7 @@ base32_decode(const char *user_data_untrimmed, size_t data_len)
 
     if (!is_valid_b32_input(user_data, data_len)) {
         fprintf(stderr, "The input is not valid base32 encoded data\n");
+        free(user_data);
         return NULL;
     }
 
@@ -120,6 +121,7 @@ base32_decode(const char *user_data_untrimmed, size_t data_len)
     unsigned char *decoded_data = calloc(output_length + 1, 1);
     if (decoded_data == NULL) {
         fprintf(stderr, "Error during memory allocation)\n");
+        free(user_data);
         return NULL;
     }
 
