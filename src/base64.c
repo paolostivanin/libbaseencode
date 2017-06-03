@@ -15,10 +15,15 @@ static const unsigned char b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
 char *
 base64_encode(const unsigned char *user_data, size_t data_len)
 {
-    if (data_len > MAX_ENCODE_INPUT_LEN) {
-        fprintf(stderr, "In order to prevent too much memory being allocated on the heap, the maximum input size allowed has been set to 64 MB.\n");
-        return NULL;
+    int ret = check_input(user_data, data_len, MAX_ENCODE_INPUT_LEN);
+    if (ret) {
+        if (ret == EMPTY_STRING) {
+            return strdup("");
+        } else {
+            return NULL;
+        }
     }
+
     size_t user_data_chars = 0, total_bits = 0;
     int num_of_equals = 0;
     for (int i = 0; i < data_len; i++) {
@@ -26,6 +31,8 @@ base64_encode(const unsigned char *user_data, size_t data_len)
         if (user_data[i] != '\0') {
             total_bits += 8;
             user_data_chars += 1;
+        } else {
+            break;
         }
     }
     switch (total_bits % 24) {
@@ -47,7 +54,7 @@ base64_encode(const unsigned char *user_data, size_t data_len)
     }
 
     uint8_t first_octet, second_octet, third_octet;
-    for (int i = 0, j = 0, triple = 0; i < user_data_chars+1;) {
+    for (int i = 0, j = 0, triple = 0; i < user_data_chars + 1;) {
         first_octet = (uint8_t) (i < user_data_chars+1 ? user_data[i++] : 0);
         second_octet = (uint8_t) (i < user_data_chars+1 ? user_data[i++] : 0);
         third_octet = (uint8_t) (i < user_data_chars+1 ? user_data[i++] : 0);
@@ -71,9 +78,13 @@ base64_encode(const unsigned char *user_data, size_t data_len)
 unsigned char *
 base64_decode(const char *user_data_untrimmed, size_t data_len)
 {
-    if (data_len > MAX_DECODE_BASE64_INPUT_LEN) {
-        fprintf(stderr, "The encoded data is bigger than allowed (max encoding size is 64 MB).\n");
-        return NULL;
+    int ret = check_input((unsigned char *)user_data_untrimmed, data_len, MAX_DECODE_BASE64_INPUT_LEN);
+    if (ret) {
+        if (ret == EMPTY_STRING) {
+            return (unsigned char *)strdup("");
+        } else {
+            return NULL;
+        }
     }
 
     char *user_data = strdup(user_data_untrimmed);

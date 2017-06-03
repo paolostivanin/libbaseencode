@@ -17,10 +17,15 @@ static const unsigned char b32_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 char *
 base32_encode(const unsigned char *user_data, size_t data_len)
 {
-    if (data_len > MAX_ENCODE_INPUT_LEN) {
-        fprintf(stderr, "In order to prevent too much memory being allocated on the heap, the maximum input size allowed has been set to 64 MB.\n");
-        return NULL;
+    int ret = check_input(user_data, data_len, MAX_ENCODE_INPUT_LEN);
+    if (ret) {
+        if (ret == EMPTY_STRING) {
+            return strdup("");
+        } else {
+            return NULL;
+        }
     }
+
     size_t user_data_chars = 0, total_bits = 0;
     int num_of_equals = 0;
     for (int i = 0; i < data_len; i++) {
@@ -28,6 +33,8 @@ base32_encode(const unsigned char *user_data, size_t data_len)
         if (user_data[i] != '\0') {
             total_bits += 8;
             user_data_chars += 1;
+        } else {
+            break;
         }
     }
     switch (total_bits % 40) {
@@ -56,12 +63,12 @@ base32_encode(const unsigned char *user_data, size_t data_len)
 
     uint64_t first_octet, second_octet, third_octet, fourth_octet, fifth_octet;
     uint64_t quintuple;
-    for (int i = 0, j = 0; i < data_len;) {
-        first_octet = i < data_len ? user_data[i++] : 0;
-        second_octet = i < data_len ? user_data[i++] : 0;
-        third_octet = i < data_len ? user_data[i++] : 0;
-        fourth_octet = i < data_len ? user_data[i++] : 0;
-        fifth_octet = i < data_len ? user_data[i++] : 0;
+    for (int i = 0, j = 0; i < user_data_chars;) {
+        first_octet = i < user_data_chars ? user_data[i++] : 0;
+        second_octet = i < user_data_chars ? user_data[i++] : 0;
+        third_octet = i < user_data_chars ? user_data[i++] : 0;
+        fourth_octet = i < user_data_chars ? user_data[i++] : 0;
+        fifth_octet = i < user_data_chars ? user_data[i++] : 0;
         quintuple =
                 ((first_octet >> 3) << 35) +
                 ((((first_octet & 0x7) << 2) | (second_octet >> 6)) << 30) +
@@ -94,9 +101,13 @@ base32_encode(const unsigned char *user_data, size_t data_len)
 unsigned char *
 base32_decode(const char *user_data_untrimmed, size_t data_len)
 {
-    if (data_len > MAX_DECODE_BASE32_INPUT_LEN) {
-        fprintf(stderr, "The encoded data is bigger than allowed (max encoding size is 64 MB).\n");
-        return NULL;
+    int ret = check_input((unsigned char *)user_data_untrimmed, data_len, MAX_DECODE_BASE32_INPUT_LEN);
+    if (ret) {
+        if (ret == EMPTY_STRING) {
+            return (unsigned char *)strdup("");
+        } else {
+            return NULL;
+        }
     }
 
     char *user_data = strdup(user_data_untrimmed);
