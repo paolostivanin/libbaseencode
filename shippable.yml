@@ -1,17 +1,17 @@
 language: c
 
 branches:
-    only:
-        - master
+  only:
+    - master
 
 compiler:
-    - gcc
-    - clang
+  - gcc
+  - clang
 
-install:
+build:
+  ci:
+    - sudo apt update
     - sudo apt install cmake
-
-script:
-    mkdir build && cd $_
-    cmake ../
-    make -j2
+    - mkdir build && cd $_
+    - cmake ../
+    - make -j2
