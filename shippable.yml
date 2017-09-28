@@ -10,8 +10,15 @@ compiler:
 
 build:
   ci:
+    - mkdir -pv "shippable/testresults"
+    - sudo add-apt-repository ppa:snaipewastaken/ppa
     - sudo apt update
-    - sudo apt install cmake
+    - sudo apt install cmake criterion-dev
     - mkdir build && cd $_
-    - cmake ../
-    - make -j2
+    - cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+    - make
+    - sudo make install
+    - cmake .. -DBUILD_TESTING=ON
+    - make
+    - ./tests/test_all --xml=test.xml
+    - mv -v test.xml ../shippable/testresults

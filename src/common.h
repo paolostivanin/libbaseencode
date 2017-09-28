@@ -1,5 +1,7 @@
 #pragma once
 
+#include "baseencode.h"
+
 #define BITS_PER_BYTE 8
 #define BITS_PER_B32_BLOCK 5
 #define BITS_PER_B64_BLOCK 6
@@ -9,11 +11,6 @@
 // if 64 MB of data is encoded than it should be also possible to decode it. That's why a bigger input is allowed for decoding
 #define MAX_DECODE_BASE32_INPUT_LEN ((MAX_ENCODE_INPUT_LEN * 8 + 4) / 5)
 #define MAX_DECODE_BASE64_INPUT_LEN ((MAX_ENCODE_INPUT_LEN * 8 + 4) / 6)
-
-#define INPUT_OK      0
-#define WRONG_INPUT   1
-#define EMPTY_STRING  2
-#define INPUT_TOO_BIG 3
 
 
 static int
@@ -33,19 +30,21 @@ strip_char(char *str, char strip)
 }
 
 
-static int
-check_input(const unsigned char *user_data, size_t data_len, int max_len)
+static void
+check_input(const unsigned char *user_data, size_t data_len, int max_len, baseencode_error_t *err)
 {
     if (user_data == NULL || (data_len == 0 && user_data[0] != '\0')) {
-        fprintf(stderr, "The input is null or data_len is incorrect\n");
-        return WRONG_INPUT;
+        *err = INVALID_INPUT;
+        return;
     } else if (user_data[0] == '\0') {
-        return EMPTY_STRING;
+        *err = EMPTY_STRING;
+        return;
     }
 
     if (data_len > max_len) {
-        fprintf(stderr, "Input too big\n");
-        return INPUT_TOO_BIG;
+        *err = INPUT_TOO_BIG;
+        return;
     }
-    return INPUT_OK;
+
+    *err = SUCCESS;
 }

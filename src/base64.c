@@ -13,11 +13,13 @@ static const unsigned char b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
 
 
 char *
-base64_encode(const unsigned char *user_data, size_t data_len)
+base64_encode(const unsigned char *user_data, size_t data_len, baseencode_error_t *err)
 {
-    int ret = check_input(user_data, data_len, MAX_ENCODE_INPUT_LEN);
-    if (ret) {
-        if (ret == EMPTY_STRING) {
+    baseencode_error_t error;
+    check_input(user_data, data_len, MAX_ENCODE_INPUT_LEN, &error);
+    if (error != SUCCESS) {
+        *err = error;
+        if (error == EMPTY_STRING) {
             return strdup("");
         } else {
             return NULL;
@@ -49,7 +51,7 @@ base64_encode(const unsigned char *user_data, size_t data_len)
     size_t output_length = (user_data_chars * 8 + 4) / 6;
     char *encoded_data = calloc(output_length + num_of_equals + 1, 1);
     if (encoded_data == NULL) {
-        fprintf(stderr, "Error during memory allocation (encoded_data)\n");
+        *err = MEMORY_ALLOCATION;
         return NULL;
     }
 
@@ -71,17 +73,20 @@ base64_encode(const unsigned char *user_data, size_t data_len)
     }
     encoded_data[output_length + num_of_equals] = '\0';
 
+    *err = SUCCESS;
     return encoded_data;
 }
 
 
 unsigned char *
-base64_decode(const char *user_data_untrimmed, size_t data_len)
+base64_decode(const char *user_data_untrimmed, size_t data_len, baseencode_error_t *err)
 {
-    int ret = check_input((unsigned char *)user_data_untrimmed, data_len, MAX_DECODE_BASE64_INPUT_LEN);
-    if (ret) {
-        if (ret == EMPTY_STRING) {
-            return (unsigned char *)strdup("");
+    baseencode_error_t error;
+    check_input((unsigned char *)user_data_untrimmed, data_len, MAX_DECODE_BASE64_INPUT_LEN, &error);
+    if (error != SUCCESS) {
+        *err = error;
+        if (error == EMPTY_STRING) {
+            return (unsigned char *) strdup("");
         } else {
             return NULL;
         }
@@ -91,7 +96,7 @@ base64_decode(const char *user_data_untrimmed, size_t data_len)
     data_len -= strip_char(user_data, ' ');
 
     if (!is_valid_b64_input(user_data, data_len)) {
-        fprintf(stderr, "The input is not valid base64 encoded data\n");
+        *err = INVALID_B64_DATA;
         free(user_data);
         return NULL;
     }
@@ -107,7 +112,7 @@ base64_decode(const char *user_data_untrimmed, size_t data_len)
     size_t output_length = data_len / 4 * 3;
     unsigned char *decoded_data = calloc(output_length + 1, 1);
     if (decoded_data == NULL) {
-        fprintf(stderr, "Error during memory allocation (decoded_data)\n");
+        *err = MEMORY_ALLOCATION;
         free(user_data);
         return NULL;
     }
@@ -132,23 +137,23 @@ base64_decode(const char *user_data_untrimmed, size_t data_len)
 
     free(user_data);
 
+    *err = SUCCESS;
     return decoded_data;
 }
 
 
 static int
-is_valid_b64_input (const char *data, size_t data_len)
+is_valid_b64_input(const char *user_data, size_t data_len)
 {
     size_t found = 0, b64_alphabet_len = sizeof(b64_alphabet);
     for (int i = 0; i < data_len; i++) {
         for(int j = 0; j < b64_alphabet_len; j++) {
-            if(data[i] == b64_alphabet[j] || data[i] == '=') {
+            if(user_data[i] == b64_alphabet[j] || user_data[i] == '=') {
                 found++;
                 break;
             }
         }
     }
-
     if (found != data_len) {
         return 0;
     } else {
