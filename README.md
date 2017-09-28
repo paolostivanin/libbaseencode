@@ -3,11 +3,16 @@
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/12747/badge.svg"/>
 </a>
+<a href="https://app.shippable.com/github/paolostivanin/libcotp">
+  <img alt="Shippable Build Status"
+       src="https://api.shippable.com/projects/58e3d5759401b40600a7c024/badge?branch=master"/>
+</a>
 
 Library written in C for encoding and decoding data using base32 or base64 according to [RFC-4648](https://tools.ietf.org/html/rfc4648)
 
 # Requiremens
-- GCC/Clang and CMake
+- GCC or Clang
+- CMake
 
 # Build and Install
 ```
@@ -21,13 +26,19 @@ $ make
 
 # How To Use It
 ```
-char *b32_encoded = base32_encode(input, input_length);
+char *b32_encoded = base32_encode(unsigned char *input, size_t input_length, baseencode_error_t *err);
 
-unsigned char *b32_decoded = base32_decode(input, input_length);
+unsigned char *b32_decoded = base32_decode(char *input, size_t input_length, baseencode_error_t *err);
 
-char *b64_encoded = base64_encode(input, input_length);
+char *b64_encoded = base64_encode(unsigned char *input, size_t input_length, baseencode_error_t *err);
 
-unsigned char *b64_decoded = base64_decode(input, input_length);
+unsigned char *b64_decoded = base64_decode(char *input, size_t input_length, baseencode_error_t *err);
 ```
-
 Please note that all the returned value **must be freed** once not needed any more.
+
+## Errors
+In case of errors, `NULL` is returned and `err` is set to either one of:
+```
+INVALID_INPUT, EMPTY_STRING, INPUT_TOO_BIG, INVALID_B32_DATA, INVALID_B64_DATA, MEMORY_ALLOCATION,
+```
+otherwise, `err` is set to `SUCCESS`

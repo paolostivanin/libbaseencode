@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include "common.h"
 
 
@@ -15,11 +14,13 @@ static const unsigned char b32_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 // The encoding process represents 40-bit groups of input bits as output strings of 8 encoded characters. The input data must be null terminated.
 char *
-base32_encode(const unsigned char *user_data, size_t data_len)
+base32_encode(const unsigned char *user_data, size_t data_len, baseencode_error_t *err)
 {
-    int ret = check_input(user_data, data_len, MAX_ENCODE_INPUT_LEN);
-    if (ret) {
-        if (ret == EMPTY_STRING) {
+    baseencode_error_t error;
+    check_input(user_data, data_len, MAX_ENCODE_INPUT_LEN, &error);
+    if (error != SUCCESS) {
+        *err = error;
+        if (error == EMPTY_STRING) {
             return strdup("");
         } else {
             return NULL;
@@ -57,7 +58,7 @@ base32_encode(const unsigned char *user_data, size_t data_len)
     size_t output_length = (user_data_chars * 8 + 4) / 5;
     char *encoded_data = calloc(output_length + num_of_equals + 1, 1);
     if (encoded_data == NULL) {
-        fprintf(stderr, "Error during memory allocation)\n");
+        *err = MEMORY_ALLOCATION;
         return NULL;
     }
 
@@ -94,17 +95,20 @@ base32_encode(const unsigned char *user_data, size_t data_len)
     }
     encoded_data[output_length + num_of_equals] = '\0';
 
+    *err = SUCCESS;
     return encoded_data;
 }
 
 
 unsigned char *
-base32_decode(const char *user_data_untrimmed, size_t data_len)
+base32_decode(const char *user_data_untrimmed, size_t data_len, baseencode_error_t *err)
 {
-    int ret = check_input((unsigned char *)user_data_untrimmed, data_len, MAX_DECODE_BASE32_INPUT_LEN);
-    if (ret) {
-        if (ret == EMPTY_STRING) {
-            return (unsigned char *)strdup("");
+    baseencode_error_t error;
+    check_input((unsigned char *)user_data_untrimmed, data_len, MAX_DECODE_BASE32_INPUT_LEN, &error);
+    if (error != SUCCESS) {
+        *err = error;
+        if (error == EMPTY_STRING) {
+            return (unsigned char *) strdup("");
         } else {
             return NULL;
         }
@@ -114,11 +118,10 @@ base32_decode(const char *user_data_untrimmed, size_t data_len)
     data_len -= strip_char(user_data, ' ');
 
     if (!is_valid_b32_input(user_data, data_len)) {
-        fprintf(stderr, "The input is not valid base32 encoded data\n");
+        *err = INVALID_B32_DATA;
         free(user_data);
         return NULL;
     }
-
 
     size_t user_data_chars = 0;
     for (int i = 0; i < data_len; i++) {
@@ -131,7 +134,7 @@ base32_decode(const char *user_data_untrimmed, size_t data_len)
     size_t output_length = (size_t) ((user_data_chars + 1.6 - 1) / 1.6);  // round up
     unsigned char *decoded_data = calloc(output_length + 1, 1);
     if (decoded_data == NULL) {
-        fprintf(stderr, "Error during memory allocation)\n");
+        *err = MEMORY_ALLOCATION;
         free(user_data);
         return NULL;
     }
@@ -156,21 +159,22 @@ base32_decode(const char *user_data_untrimmed, size_t data_len)
 
     free(user_data);
 
+    *err = SUCCESS;
     return decoded_data;
 }
 
 
 static int
-is_valid_b32_input (const char *data, size_t data_len)
+is_valid_b32_input(const char *user_data, size_t data_len)
 {
     size_t found = 0, b32_alphabet_len = sizeof(b32_alphabet);
     for (int i = 0; i < data_len; i++) {
-        if (data[i] == '\0') {
+        if (user_data[i] == '\0') {
             found++;
             break;
         }
         for(int j = 0; j < b32_alphabet_len; j++) {
-            if(data[i] == b32_alphabet[j] || data[i] == '=') {
+            if(user_data[i] == b32_alphabet[j] || user_data[i] == '=') {
                 found++;
                 break;
             }
