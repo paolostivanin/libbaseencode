@@ -1,6 +1,6 @@
 #pragma once
 
-typedef enum _errno {
+typedef enum _baseencode_errno {
     SUCCESS = 0,
     INVALID_INPUT = 1,
     EMPTY_STRING = 2,
