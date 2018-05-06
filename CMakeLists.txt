@@ -7,7 +7,7 @@ add_subdirectory(tests)
 # set up versioning.
 set(BUILD_MAJOR "1")
 set(BUILD_MINOR "0")
-set(BUILD_VERSION "4")
+set(BUILD_VERSION "5")
 set(BUILD_VERSION ${BUILD_MAJOR}.${BUILD_MINOR}.${BUILD_VERSION})
 
 set(CMAKE_C_STANDARD 11)
@@ -37,3 +37,6 @@ install(
   FILES ${BASEENCODE_HEADERS}
   DESTINATION include
 )
+
+configure_file("baseencode.pc.in" "baseencode.pc" @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/baseencode.pc" DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig/)
