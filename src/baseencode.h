@@ -11,10 +11,18 @@ typedef enum _baseencode_errno {
 } baseencode_error_t;
 
 
-char *base32_encode(const unsigned char *user_data, size_t data_len, baseencode_error_t *err);
+char            *base32_encode (const unsigned char *user_data,
+                                size_t               data_len,
+                                baseencode_error_t  *err);
 
-unsigned char *base32_decode(const char *user_data, size_t data_len, baseencode_error_t *err);
+unsigned char   *base32_decode (const char          *user_data,
+                                size_t               data_len,
+                                baseencode_error_t  *err);
 
-char *base64_encode(const unsigned char *input_string, size_t input_length, baseencode_error_t *err);
+char            *base64_encode (const unsigned char *input_string,
+                                size_t               input_length,
+                                baseencode_error_t  *err);
 
-unsigned char *base64_decode(const char *input_string, size_t input_length, baseencode_error_t *err);
+unsigned char   *base64_decode (const char          *input_string,
+                                size_t               input_length,
+                                baseencode_error_t  *err);
