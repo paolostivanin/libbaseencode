@@ -39,4 +39,4 @@ install(
 )
 
 configure_file("baseencode.pc.in" "baseencode.pc" @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/baseencode.pc" DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig/)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/baseencode.pc" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig/)
