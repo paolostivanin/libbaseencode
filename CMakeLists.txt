@@ -7,7 +7,7 @@ add_subdirectory(tests)
 # set up versioning.
 set(BUILD_MAJOR "1")
 set(BUILD_MINOR "0")
-set(BUILD_VERSION "8")
+set(BUILD_VERSION "9")
 set(BUILD_VERSION ${BUILD_MAJOR}.${BUILD_MINOR}.${BUILD_VERSION})
 
 set(CMAKE_C_STANDARD 11)
@@ -21,7 +21,7 @@ add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} ${PROJECT_LIBS})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${BUILD_VERSION} SOVERSION ${BUILD_MAJOR}${BUILD_MINOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${BUILD_VERSION} SOVERSION ${BUILD_MAJOR})
 
 include(GNUInstallDirs)
 set(LIB_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}") # "lib" or "lib64"
