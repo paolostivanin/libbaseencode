@@ -38,4 +38,3 @@ In case of errors, `NULL` is returned and `err` is set to either one of:
 INVALID_INPUT, EMPTY_STRING, INPUT_TOO_BIG, INVALID_B32_DATA, INVALID_B64_DATA, MEMORY_ALLOCATION,
 ```
 otherwise, `err` is set to `SUCCESS`
-
