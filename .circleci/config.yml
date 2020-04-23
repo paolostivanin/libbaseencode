@@ -6,17 +6,21 @@ jobs:
       - image: ubuntu:18.04
     steps:
       - checkout
+      - run: apt update && apt -y install git gcc clang cmake
+      - run: apt install -y software-properties-common apt-transport-https
       - run: add-apt-repository ppa:snaipewastaken/ppa
-      - run: apt update && apt -y install gcc clang cmake criterion-dev
+      - run: apt update && apt -y install criterion-dev
       - run: chmod +x .ci/run_tests.sh
 
-  debianLatestStable:
+  ubuntuLatestRolling:
     docker:
-      - image: debian:latest
+      - image: ubuntu:rolling
     steps:
       - checkout
+      - run: apt update && apt -y install git gcc clang cmake
+      - run: apt -y install software-properties-common apt-transport-https
       - run: add-apt-repository ppa:snaipewastaken/ppa
-      - run: apt update && apt -y install git gcc clang cmake criterion-dev
+      - run: apt update && apt -y install criterion-dev
       - run: chmod +x .ci/run_tests.sh
 
 workflows:
@@ -24,4 +28,4 @@ workflows:
   build:
     jobs:
       - ubuntu1804
-      - debianLatestStable
+      - ubuntuLatestRolling 
