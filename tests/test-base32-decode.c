@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <criterion/criterion.h>
-#include <baseencode.h>
+#include "../src/baseencode.h"
 
 
 Test(b32_decode_test, b32_all_chars) {

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <criterion/criterion.h>
-#include <baseencode.h>
+#include "../src/baseencode.h"
 
 
 Test(b64_encode_test, null_input) {
