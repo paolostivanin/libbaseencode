@@ -49,7 +49,7 @@ base64_encode(const unsigned char *user_data, size_t data_len, baseencode_error_
     }
 
     size_t output_length = (user_data_chars * 8 + 4) / 6;
-    char *encoded_data = calloc(output_length + num_of_equals + 1, 1);
+    char *encoded_data = calloc(output_length + num_of_equals + 1 + 3, 1);
     if (encoded_data == NULL) {
         *err = MEMORY_ALLOCATION;
         return NULL;
