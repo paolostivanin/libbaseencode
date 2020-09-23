@@ -131,7 +131,7 @@ base32_decode(const char *user_data_untrimmed, size_t data_len, baseencode_error
         }
     }
 
-    size_t output_length = (size_t) ((user_data_chars + 1.6 - 1) / 1.6);  // round up
+    size_t output_length = (size_t) ((user_data_chars + 1.6 + 1) / 1.6);  // round up
     unsigned char *decoded_data = calloc(output_length + 1, 1);
     if (decoded_data == NULL) {
         *err = MEMORY_ALLOCATION;
