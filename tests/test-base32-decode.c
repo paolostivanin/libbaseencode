@@ -88,3 +88,17 @@ Test(b32_decode_test, b32_decode_input_whitespaces) {
 
     cr_expect_str_eq(dk, expected, "%s");
 }
+
+Test(b32_decode_test, b32_decode_encode_null) {
+    const char* token = "LLFTSZYMUGKHEDQBAAACAZAMUFKKVFLS";
+    baseencode_error_t err;
+
+    unsigned char* binary = base32_decode(token, strlen(token)+1, &err);
+    cr_expect_eq(err, SUCCESS);
+
+    char* result = base32_encode(binary, 20, &err);
+    cr_expect_eq(err, SUCCESS);
+
+    cr_expect_str_eq(result, token, "%s");
+}
+
