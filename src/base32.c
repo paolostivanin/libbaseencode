@@ -31,11 +31,12 @@ base32_encode(const unsigned char *user_data, size_t data_len, baseencode_error_
     int num_of_equals = 0;
     for (int i = 0; i < data_len; i++) {
         // As it's not known whether data_len is with or without the +1 for the null byte, a manual check is required.
-        if (user_data[i] != '\0') {
+        // Check for null byte only at the end of the user's given length, otherwise issue#23 may occur
+        if (user_data[i] == '\0' && i == data_len-1) {
+            break;
+        } else {
             total_bits += 8;
             user_data_chars += 1;
-        } else {
-            break;
         }
     }
     switch (total_bits % 40) {
