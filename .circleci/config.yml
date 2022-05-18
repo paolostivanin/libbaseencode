@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - run: apt update && apt -y install git gcc clang cmake libcriterion-dev 
-      - run: chmod +x .circleci/build_and_test.sh
+      - run: chmod +x .circleci/build_and_tests.sh
 
   fedoraLatestStable:
     docker:
