@@ -1,10 +1,5 @@
-prefix=@CMAKE_INSTALL_PREFIX@
-exec_prefix=${prefix}
-libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
-includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
-
 Name: libbaseencode
 Description: C library for encoding and decoding data using base32 or base64
 Version: @BUILD_VERSION@
-Libs: -L${libdir} -lbaseencode
-Cflags: -I${includedir}
+Libs: -L@CMAKE_INSTALL_PREFIX@/@BASEENCODE_LIB_DIR@ -lbaseencode
+Cflags: -I@CMAKE_INSTALL_PREFIX@/@BASEENCODE_INC_DIR@
