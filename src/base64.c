@@ -93,6 +93,10 @@ base64_decode(const char *user_data_untrimmed, size_t data_len, baseencode_error
     }
 
     char *user_data = strdup(user_data_untrimmed);
+    if (user_data == NULL) {
+        *err = MEMORY_ALLOCATION;
+        return NULL;
+    }
     data_len -= strip_char(user_data, ' ');
 
     if (!is_valid_b64_input(user_data, data_len)) {
