@@ -1,35 +1,35 @@
 version: 2.0
 
 jobs:
-  debianLatestStable:
+  debian:
     docker:
-      - image: debian:latest
+      - image: debian:testing
     steps:
       - checkout
-      - run: apt update && apt -y install git gcc clang cmake libcriterion-dev 
-      - run: chmod +x .circleci/build_and_tests.sh
+      - run:
+          command: |
+            apt update && apt -y install git gcc clang cmake libcriterion-dev 
+            mkdir build && cd "$_"
+            cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=ON ..
+            make && make install
+            ./tests/test_all
 
-  fedoraLatestStable:
+  ubuntu:
     docker:
-      - image: fedora:latest
+      - image: ubuntu:latest
     steps:
       - checkout
-      - run: dnf -y update && dnf -y install git gcc cmake make libgcrypt-devel 
-      - run: chmod +x .circleci/build_only.sh
-
-  archlinux:
-    docker:
-      - image: archlinux:latest
-    steps:
-      - checkout
-      - run: pacman -Syu --noconfirm && pacman -S --noconfirm pkg-config git gcc cmake make
-      - run: chmod +x .circleci/build_only.sh
+      - run:
+          command: |
+            apt update && apt -y install git gcc clang cmake libcriterion-dev
+            mkdir build && cd "$_"
+            cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=ON ..
+            make && make install
+            ./tests/test_all
 
 workflows:
   version: 2
   build:
     jobs:
-      - debianLatestStable
-      - fedoraLatestStable
-      - archlinux
-
+      - debian
+      - ubuntu
