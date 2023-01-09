@@ -6,6 +6,8 @@
 
 Library written in C for encoding and decoding data using base32 or base64 according to [RFC-4648](https://tools.ietf.org/html/rfc4648)
 
+⚠️ libbasencode will be deprecated once [libcotp](https://github.com/paolostivanin/libcotp) 2.0.0 is released. ⚠️
+
 # Requiremens
 - GCC or Clang
 - CMake
