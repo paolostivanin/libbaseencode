@@ -1,4 +1,4 @@
-# libbaseencode
+# libbaseencode (deprecated since libcotp 2.0.0)
 <a href="https://scan.coverity.com/projects/paolostivanin-libbaseencode">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/12747/badge.svg"/>
@@ -6,7 +6,7 @@
 
 Library written in C for encoding and decoding data using base32 or base64 according to [RFC-4648](https://tools.ietf.org/html/rfc4648)
 
-⚠️ libbasencode will be deprecated once [libcotp](https://github.com/paolostivanin/libcotp) 2.0.0 is released. ⚠️
+⚠️ libbasencode is deprecated since [libcotp](https://github.com/paolostivanin/libcotp) 2.0.0 has been released. ⚠️
 
 # Requiremens
 - GCC or Clang
